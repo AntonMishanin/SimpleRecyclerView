@@ -1,7 +1,6 @@
 package com.paint.simplerecyclerview.data
 
 import com.paint.simplerecyclerview.entity.DateUiEntity
-import com.paint.simplerecyclerview.data.local.LocalDataSource
 import com.paint.simplerecyclerview.entity.TaskEntity
 
 class Repository(

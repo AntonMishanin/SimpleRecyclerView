@@ -1,20 +1,17 @@
 package com.paint.simplerecyclerview.data.local
 
+import com.paint.simplerecyclerview.data.*
 import com.paint.simplerecyclerview.entity.DateUiEntity
 import com.paint.simplerecyclerview.data.local.dto.DateDto
-import com.paint.simplerecyclerview.data.toDateDto
-import com.paint.simplerecyclerview.data.toDateUi
-import com.paint.simplerecyclerview.data.toTaskDto
-import com.paint.simplerecyclerview.data.toTaskUi
 import com.paint.simplerecyclerview.entity.TaskEntity
 import com.paint.simplerecyclerview.exception.NonExistentIdException
 import kotlin.collections.ArrayList
 
-class LocalDataSource {
+class LocalDataSourceImpl : LocalDataSource {
 
     private val dates: MutableList<DateDto> = ArrayList()
 
-    fun addTaskByDateId(taskEntity: TaskEntity, dateId: String) {
+    override fun addTaskByDateId(taskEntity: TaskEntity, dateId: String) {
         for (i in dates.indices) {
             if (dates[i].id == dateId) {
                 val taskDto = taskEntity.toTaskDto()
@@ -29,7 +26,7 @@ class LocalDataSource {
 
     }
 
-    fun getTasksByDateId(id: String): List<TaskEntity> {
+    override fun getTasksByDateId(id: String): List<TaskEntity> {
         var date: DateDto? = null
         dates.forEach { dateDto ->
             if (dateDto.id == id) {
@@ -40,11 +37,13 @@ class LocalDataSource {
             ?: throw NonExistentIdException("Non-existent id = $id")
     }
 
-    fun getDates(): List<DateUiEntity> = dates.map { dateDto -> dateDto.toDateUi() }
+    override fun getDates(): List<DateUiEntity> = dates.map { dateDto -> dateDto.toDateUi() }
 
-    fun addDate(dateUiEntity: DateUiEntity) = dates.add(dateUiEntity.toDateDto())
+    override fun addDate(dateUiEntity: DateUiEntity) {
+        dates.add(dateUiEntity.toDateDto())
+    }
 
-    fun getDateById(id: String): DateUiEntity {
+    override fun getDateById(id: String): DateUiEntity {
         var date: DateDto? = null
         dates.forEach { dateDto ->
             if (dateDto.id == id) {
@@ -54,16 +53,16 @@ class LocalDataSource {
         return date?.toDateUi() ?: throw NonExistentIdException("Non-existent id = $id")
     }
 
-    fun deleteTaskByIdAndByDateId(taskId: String, dateId: String) {
+    override fun deleteTaskByIdAndByDateId(taskId: String, dateId: String) {
         var datePosition = 0
-        for(i in dates.indices){
+        for (i in dates.indices) {
             if (dates[i].id == dateId) {
                 datePosition = i
             }
         }
 
-        for(i in dates[datePosition].tasks.indices){
-            if(dates[datePosition].tasks[i].id == taskId){
+        for (i in dates[datePosition].tasks.indices) {
+            if (dates[datePosition].tasks[i].id == taskId) {
                 val mutableList = dates[datePosition].tasks.toMutableList()
                 mutableList.removeAt(i)
                 dates[datePosition] = dates[datePosition].copy(tasks = mutableList.toList())

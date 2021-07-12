@@ -6,7 +6,8 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.paint.simplerecyclerview.data.Repository
-import com.paint.simplerecyclerview.data.local.LocalDataSource
+import com.paint.simplerecyclerview.data.local.LocalDataSourceImpl
+import com.paint.simplerecyclerview.di.TasksDependencyFactory
 import com.paint.simplerecyclerview.entity.*
 import java.util.*
 
@@ -15,7 +16,9 @@ class TasksActivity : AppCompatActivity() {
     private lateinit var tasksAdapter: TasksAdapter
     private lateinit var datesAdapter: DatesAdapter
 
-    private val repository = Repository(LocalDataSource())
+    private val repository: Repository by lazy {
+        TasksDependencyFactory(applicationContext).provideRepository()
+    }
 
     private var selectedDateId = ""
 
@@ -29,7 +32,7 @@ class TasksActivity : AppCompatActivity() {
         initListOfTasks()
     }
 
-    private fun initListOfDates(){
+    private fun initListOfDates() {
         datesAdapter = DatesAdapter { position ->
             selectedDateId = repository.getDates()[position].id
             listOfTasks = repository.getTasksByDateId(selectedDateId)
@@ -42,7 +45,7 @@ class TasksActivity : AppCompatActivity() {
         addDate.setOnClickListener { onAddDateClicked() }
     }
 
-    private fun initListOfTasks(){
+    private fun initListOfTasks() {
         tasksAdapter = TasksAdapter({ position ->
             onItemClicked(position)
         }, { position ->
@@ -56,7 +59,7 @@ class TasksActivity : AppCompatActivity() {
         addTask.setOnClickListener { onAddTaskClicked() }
     }
 
-    private fun onAddDateClicked(){
+    private fun onAddDateClicked() {
         val date = DateUiEntity(id = UUID.randomUUID().toString(), tasks = emptyList())
         repository.addDate(date)
         datesAdapter.submitList(repository.getDates())
@@ -84,7 +87,7 @@ class TasksActivity : AppCompatActivity() {
         tasksAdapter.submitList(listOfTasks)
     }
 
-    private fun onAddTaskClicked(){
+    private fun onAddTaskClicked() {
         if (selectedDateId.isEmpty()) {
             Toast.makeText(applicationContext, "Need select date", Toast.LENGTH_SHORT).show()
             return
