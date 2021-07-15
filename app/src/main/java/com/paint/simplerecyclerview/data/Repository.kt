@@ -7,18 +7,21 @@ class Repository(
     private val localDataSource: LocalDataSource
 ) {
 
-    fun addTaskByDateId(taskEntity: TaskEntity, dateId: String) =
-        localDataSource.addTaskByDateId(taskEntity, dateId)
+    fun addTaskByDateId(taskEntity: TaskEntity, dateId: String, onSuccess: () -> Unit) =
+        localDataSource.addTaskByDateId(taskEntity, dateId, onSuccess)
 
-    fun getTasksByDateId(id: String): List<TaskEntity> = localDataSource.getTasksByDateId(id)
+    fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskEntity>) -> Unit) =
+        localDataSource.getTasksByDateId(id, onSuccess)
 
-    fun getDates(): List<DateUiEntity> = localDataSource.getDates()
+    fun getDates(onSuccess: (List<DateUiEntity>) -> Unit) =
+        localDataSource.getDates(onSuccess = onSuccess)
 
-    fun addDate(dateUiEntity: DateUiEntity) = localDataSource.addDate(dateUiEntity)
+    fun addDate(dateUiEntity: DateUiEntity, onSuccess: () -> Unit) =
+        localDataSource.addDate(dateUiEntity, onSuccess)
 
     fun getDateById(id: String): DateUiEntity =
         localDataSource.getDateById(id)
 
-    fun deleteTaskByIdAndByDateId(taskId: String, dateId: String) =
-        localDataSource.deleteTaskByIdAndByDateId(taskId, dateId)
+    fun deleteTaskByIdAndByDateId(taskId: String, dateId: String, onSuccess: () -> Unit) =
+        localDataSource.deleteTaskByIdAndByDateId(taskId, dateId, onSuccess)
 }

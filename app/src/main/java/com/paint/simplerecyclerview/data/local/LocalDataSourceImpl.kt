@@ -7,11 +7,11 @@ import com.paint.simplerecyclerview.entity.TaskEntity
 import com.paint.simplerecyclerview.exception.NonExistentIdException
 import kotlin.collections.ArrayList
 
-class LocalDataSourceImpl : LocalDataSource {
+class LocalDataSourceImpl {
 
     private val dates: MutableList<DateDto> = ArrayList()
 
-    override fun addTaskByDateId(taskEntity: TaskEntity, dateId: String) {
+    fun addTaskByDateId(taskEntity: TaskEntity, dateId: String) {
         for (i in dates.indices) {
             if (dates[i].id == dateId) {
                 val taskDto = taskEntity.toTaskDto()
@@ -26,7 +26,7 @@ class LocalDataSourceImpl : LocalDataSource {
 
     }
 
-    override fun getTasksByDateId(id: String): List<TaskEntity> {
+    fun getTasksByDateId(id: String): List<TaskEntity> {
         var date: DateDto? = null
         dates.forEach { dateDto ->
             if (dateDto.id == id) {
@@ -37,13 +37,13 @@ class LocalDataSourceImpl : LocalDataSource {
             ?: throw NonExistentIdException("Non-existent id = $id")
     }
 
-    override fun getDates(): List<DateUiEntity> = dates.map { dateDto -> dateDto.toDateUi() }
+    fun getDates(): List<DateUiEntity> = dates.map { dateDto -> dateDto.toDateUi() }
 
-    override fun addDate(dateUiEntity: DateUiEntity) {
+    fun addDate(dateUiEntity: DateUiEntity) {
         dates.add(dateUiEntity.toDateDto())
     }
 
-    override fun getDateById(id: String): DateUiEntity {
+    fun getDateById(id: String): DateUiEntity {
         var date: DateDto? = null
         dates.forEach { dateDto ->
             if (dateDto.id == id) {
@@ -53,7 +53,7 @@ class LocalDataSourceImpl : LocalDataSource {
         return date?.toDateUi() ?: throw NonExistentIdException("Non-existent id = $id")
     }
 
-    override fun deleteTaskByIdAndByDateId(taskId: String, dateId: String) {
+    fun deleteTaskByIdAndByDateId(taskId: String, dateId: String) {
         var datePosition = 0
         for (i in dates.indices) {
             if (dates[i].id == dateId) {
