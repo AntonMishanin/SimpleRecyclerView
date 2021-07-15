@@ -14,7 +14,7 @@ buildscript {
         // in the individual module build.gradle files
 
         //Realm
-        classpath "io.realm:realm-gradle-plugin:10.0.1"
+        classpath "io.realm:realm-gradle-plugin:10.6.1"
     }
 }
 
