@@ -1,8 +1,7 @@
 package com.paint.simplerecyclerview.data.realm
 
 import com.paint.simplerecyclerview.entity.DateUiEntity
-import com.paint.simplerecyclerview.entity.InactiveTaskEntity
-import com.paint.simplerecyclerview.entity.TaskEntity
+import com.paint.simplerecyclerview.entity.TaskUi
 import io.realm.RealmList
 
 fun DateDto.toDateUi() = DateUiEntity(
@@ -10,8 +9,10 @@ fun DateDto.toDateUi() = DateUiEntity(
     tasks = this.tasks.map { taskDto -> taskDto.toTaskUi() }
 )
 
-fun TaskDto.toTaskUi() = InactiveTaskEntity(
-    id = this.id
+fun TaskDto.toTaskUi() = TaskUi(
+    id = this.id,
+    viewType = 0,
+    isChecked = true
 )
 
 fun DateUiEntity.toDateDto(): DateDto {
@@ -27,6 +28,6 @@ fun DateUiEntity.toDateDto(): DateDto {
     )
 }
 
-fun TaskEntity.toTaskDto() = TaskDto(
+fun TaskUi.toTaskDto() = TaskDto(
     id = this.id
 )

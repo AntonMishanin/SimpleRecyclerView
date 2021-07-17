@@ -3,7 +3,7 @@ package com.paint.simplerecyclerview.data.local
 import com.paint.simplerecyclerview.data.*
 import com.paint.simplerecyclerview.entity.DateUiEntity
 import com.paint.simplerecyclerview.data.local.dto.DateDto
-import com.paint.simplerecyclerview.entity.TaskEntity
+import com.paint.simplerecyclerview.entity.TaskUi
 import com.paint.simplerecyclerview.exception.NonExistentIdException
 import kotlin.collections.ArrayList
 
@@ -11,7 +11,7 @@ class LocalDataSourceImpl {
 
     private val dates: MutableList<DateDto> = ArrayList()
 
-    fun addTaskByDateId(taskEntity: TaskEntity, dateId: String) {
+    fun addTaskByDateId(taskEntity: TaskUi, dateId: String) {
         for (i in dates.indices) {
             if (dates[i].id == dateId) {
                 val taskDto = taskEntity.toTaskDto()
@@ -26,7 +26,7 @@ class LocalDataSourceImpl {
 
     }
 
-    fun getTasksByDateId(id: String): List<TaskEntity> {
+    fun getTasksByDateId(id: String): List<TaskUi> {
         var date: DateDto? = null
         dates.forEach { dateDto ->
             if (dateDto.id == id) {

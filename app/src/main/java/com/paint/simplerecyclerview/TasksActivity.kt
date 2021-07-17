@@ -6,7 +6,6 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.paint.simplerecyclerview.data.Repository
-import com.paint.simplerecyclerview.data.local.LocalDataSourceImpl
 import com.paint.simplerecyclerview.di.TasksDependencyFactory
 import com.paint.simplerecyclerview.entity.*
 import java.util.*
@@ -16,13 +15,14 @@ class TasksActivity : AppCompatActivity() {
     private lateinit var tasksAdapter: TasksAdapter
     private lateinit var datesAdapter: DatesAdapter
 
+    private var listOfDates: List<DateUiEntity> = emptyList()
+    private var listOfTasks: List<TaskUi> = emptyList()
+
     private val repository: Repository by lazy {
         TasksDependencyFactory(applicationContext).provideRepository()
     }
 
     private var selectedDateId = ""
-
-    private var listOfTasks: List<TaskEntity> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,15 +34,22 @@ class TasksActivity : AppCompatActivity() {
 
     private fun initListOfDates() {
         datesAdapter = DatesAdapter { position ->
-            selectedDateId = repository.getDates()[position].id
-            listOfTasks = repository.getTasksByDateId(selectedDateId)
-            tasksAdapter.submitList(listOfTasks)
+            selectedDateId = listOfDates[position].id
+            repository.getTasksByDateId(selectedDateId, onSuccess = { listOfTasks ->
+                this.listOfTasks = listOfTasks
+                tasksAdapter.submitList(listOfTasks)
+            })
         }
         val dates = findViewById<RecyclerView>(R.id.dates)
         dates.adapter = datesAdapter
 
         val addDate = findViewById<Button>(R.id.add_date)
         addDate.setOnClickListener { onAddDateClicked() }
+
+        repository.getDates { listOfDates ->
+            this.listOfDates = listOfDates
+            datesAdapter.submitList(listOfDates)
+        }
     }
 
     private fun initListOfTasks() {
@@ -61,30 +68,48 @@ class TasksActivity : AppCompatActivity() {
 
     private fun onAddDateClicked() {
         val date = DateUiEntity(id = UUID.randomUUID().toString(), tasks = emptyList())
-        repository.addDate(date)
-        datesAdapter.submitList(repository.getDates())
+        repository.addDate(date, onSuccess = {
+            repository.getDates { listOfDates ->
+                this.listOfDates = listOfDates
+                datesAdapter.submitList(listOfDates)
+            }
+        })
     }
 
     private fun onItemClicked(position: Int) {
         val task = listOfTasks[position]
         val container = listOfTasks.toMutableList()
-        container[position] = ActiveTaskEntity(id = task.id)
+        container[position] = when (task.isChecked) {
+            true -> TaskUi(
+                id = task.id,
+                viewType = INACTIVE_VIEW_TYPE,
+                isChecked = false
+            )
+            false -> TaskUi(
+                id = task.id,
+                viewType = INACTIVE_VIEW_TYPE,
+                isChecked = true
+            )
+        }
         listOfTasks = container.toList()
         tasksAdapter.submitList(listOfTasks)
     }
 
     private fun onDeleteClicked(position: Int) {
-        val date = repository.getDateById(selectedDateId)
-        if (position >= date.tasks.size) {
-            listOfTasks = repository.getTasksByDateId(selectedDateId)
-            tasksAdapter.submitList(listOfTasks)
-            return
+        var date: DateUiEntity? = null
+        for (i in listOfDates.indices) {
+            if (selectedDateId == listOfDates[i].id) {
+                date = listOfDates[i]
+            }
         }
 
-        val taskId = date.tasks[position].id
-        repository.deleteTaskByIdAndByDateId(taskId, selectedDateId)
-        listOfTasks = repository.getTasksByDateId(selectedDateId)
-        tasksAdapter.submitList(listOfTasks)
+        val taskId = date!!.tasks[position].id
+        repository.deleteTaskByIdAndByDateId(taskId, selectedDateId, onSuccess = {
+            repository.getTasksByDateId(selectedDateId, onSuccess = { listOfTasks ->
+                this.listOfTasks = listOfTasks
+                tasksAdapter.submitList(listOfTasks)
+            })
+        })
     }
 
     private fun onAddTaskClicked() {
@@ -92,12 +117,17 @@ class TasksActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Need select date", Toast.LENGTH_SHORT).show()
             return
         }
-        val task = InactiveTaskEntity(
-            id = UUID.randomUUID().toString()
+        val task = TaskUi(
+            id = UUID.randomUUID().toString(),
+            viewType = INACTIVE_VIEW_TYPE,
+            isChecked = true
         )
-        repository.addTaskByDateId(task, selectedDateId)
-        listOfTasks = repository.getTasksByDateId(selectedDateId)
-        tasksAdapter.submitList(listOfTasks)
+        repository.addTaskByDateId(task, selectedDateId, onSuccess = {
+            repository.getTasksByDateId(selectedDateId, onSuccess = { listOfTasks ->
+                this.listOfTasks = listOfTasks
+                tasksAdapter.submitList(listOfTasks)
+            })
+        })
     }
 }
 

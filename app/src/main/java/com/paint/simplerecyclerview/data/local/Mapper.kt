@@ -3,8 +3,7 @@ package com.paint.simplerecyclerview.data
 import com.paint.simplerecyclerview.entity.DateUiEntity
 import com.paint.simplerecyclerview.data.local.dto.DateDto
 import com.paint.simplerecyclerview.data.local.dto.TaskDto
-import com.paint.simplerecyclerview.entity.InactiveTaskEntity
-import com.paint.simplerecyclerview.entity.TaskEntity
+import com.paint.simplerecyclerview.entity.TaskUi
 
 fun DateDto.toDateUi() = DateUiEntity(
     id = this.id,
@@ -16,10 +15,12 @@ fun DateUiEntity.toDateDto() = DateDto(
     tasks = this.tasks.map { task -> task.toTaskDto() }
 )
 
-fun TaskDto.toTaskUi() = InactiveTaskEntity(
-    id = this.id
+fun TaskDto.toTaskUi() = TaskUi(
+    id = this.id,
+    viewType = 0,
+    isChecked = true
 )
 
-fun TaskEntity.toTaskDto() = TaskDto(
+fun TaskUi.toTaskDto() = TaskDto(
     id = this.id
 )

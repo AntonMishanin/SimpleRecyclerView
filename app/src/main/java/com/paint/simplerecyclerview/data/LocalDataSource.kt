@@ -1,13 +1,13 @@
 package com.paint.simplerecyclerview.data
 
 import com.paint.simplerecyclerview.entity.DateUiEntity
-import com.paint.simplerecyclerview.entity.TaskEntity
+import com.paint.simplerecyclerview.entity.TaskUi
 
 interface LocalDataSource {
 
-    fun addTaskByDateId(taskEntity: TaskEntity, dateId: String, onSuccess: () -> Unit)
+    fun addTaskByDateId(taskEntity: TaskUi, dateId: String, onSuccess: () -> Unit)
 
-    fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskEntity>) -> Unit)
+    fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskUi>) -> Unit)
 
     fun getDates(onSuccess: (List<DateUiEntity>)->Unit)
 

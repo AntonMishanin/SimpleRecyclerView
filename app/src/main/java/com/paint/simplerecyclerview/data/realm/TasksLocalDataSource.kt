@@ -2,14 +2,14 @@ package com.paint.simplerecyclerview.data.realm
 
 import com.paint.simplerecyclerview.data.LocalDataSource
 import com.paint.simplerecyclerview.entity.DateUiEntity
-import com.paint.simplerecyclerview.entity.TaskEntity
+import com.paint.simplerecyclerview.entity.TaskUi
 import io.realm.Realm
 
 class TasksLocalDataSource(
     private val realm: Realm
 ) : LocalDataSource {
 
-    override fun addTaskByDateId(taskEntity: TaskEntity, dateId: String, onSuccess: () -> Unit) {
+    override fun addTaskByDateId(taskEntity: TaskUi, dateId: String, onSuccess: () -> Unit) {
         realm.executeTransactionAsync({ realm ->
             val taskDto = realm.createObject(TaskDto::class.java)
             taskDto.id = taskEntity.id
@@ -23,7 +23,7 @@ class TasksLocalDataSource(
         })
     }
 
-    override fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskEntity>) -> Unit) {
+    override fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskUi>) -> Unit) {
         onSuccess(realm.where(DateDto::class.java).equalTo("id", id)
             .findFirst()?.tasks?.map { taskDto -> taskDto.toTaskUi() } ?: emptyList())
     }

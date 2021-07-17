@@ -1,16 +1,16 @@
 package com.paint.simplerecyclerview.data
 
 import com.paint.simplerecyclerview.entity.DateUiEntity
-import com.paint.simplerecyclerview.entity.TaskEntity
+import com.paint.simplerecyclerview.entity.TaskUi
 
 class Repository(
     private val localDataSource: LocalDataSource
 ) {
 
-    fun addTaskByDateId(taskEntity: TaskEntity, dateId: String, onSuccess: () -> Unit) =
+    fun addTaskByDateId(taskEntity: TaskUi, dateId: String, onSuccess: () -> Unit) =
         localDataSource.addTaskByDateId(taskEntity, dateId, onSuccess)
 
-    fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskEntity>) -> Unit) =
+    fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskUi>) -> Unit) =
         localDataSource.getTasksByDateId(id, onSuccess)
 
     fun getDates(onSuccess: (List<DateUiEntity>) -> Unit) =
