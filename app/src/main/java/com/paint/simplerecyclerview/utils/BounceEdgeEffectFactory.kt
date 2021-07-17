@@ -1,4 +1,4 @@
-package com.paint.simplerecyclerview
+package com.paint.simplerecyclerview.utils
 
 import android.graphics.Canvas
 import android.widget.EdgeEffect

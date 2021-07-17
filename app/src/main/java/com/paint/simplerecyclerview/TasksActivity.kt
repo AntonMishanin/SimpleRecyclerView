@@ -9,6 +9,7 @@ import com.paint.simplerecyclerview.data.Repository
 import com.paint.simplerecyclerview.di.TasksDependencyFactory
 import com.paint.simplerecyclerview.entity.DateUiEntity
 import com.paint.simplerecyclerview.entity.TaskUi
+import com.paint.simplerecyclerview.utils.BounceEdgeEffectFactory
 import java.util.*
 
 class TasksActivity : AppCompatActivity() {
