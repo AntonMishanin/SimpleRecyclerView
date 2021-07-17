@@ -1,13 +1,14 @@
 package com.paint.simplerecyclerview
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.paint.simplerecyclerview.data.Repository
 import com.paint.simplerecyclerview.di.TasksDependencyFactory
-import com.paint.simplerecyclerview.entity.*
+import com.paint.simplerecyclerview.entity.DateUiEntity
+import com.paint.simplerecyclerview.entity.TaskUi
 import java.util.*
 
 class TasksActivity : AppCompatActivity() {
@@ -61,6 +62,7 @@ class TasksActivity : AppCompatActivity() {
 
         val tasks = findViewById<RecyclerView>(R.id.tasks)
         tasks.adapter = tasksAdapter
+        tasks.edgeEffectFactory = BounceEdgeEffectFactory()
 
         val addTask = findViewById<Button>(R.id.add_task)
         addTask.setOnClickListener { onAddTaskClicked() }
