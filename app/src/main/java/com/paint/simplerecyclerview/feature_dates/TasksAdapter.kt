@@ -1,6 +1,5 @@
-package com.paint.simplerecyclerview
+package com.paint.simplerecyclerview.feature_dates
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +8,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.paint.simplerecyclerview.R
 import com.paint.simplerecyclerview.entity.TaskUi
 import java.lang.IllegalArgumentException
 
@@ -16,8 +16,8 @@ const val INACTIVE_VIEW_TYPE = 0
 const val ACTIVE_VIEW_TYPE = 1
 
 class TasksAdapter(
-    private val onItemClicked: (position: Int) -> Unit,
-    private val onDeleteClicked: (position: Int) -> Unit
+    private val onItemClicked: (id: String) -> Unit,
+    private val onDeleteClicked: (id: String) -> Unit
 ) : ListAdapter<TaskUi, RecyclerView.ViewHolder>(DiffCallback()) {
 
     override fun getItemViewType(position: Int): Int = getItem(position).viewType
@@ -41,14 +41,11 @@ class TasksAdapter(
         when (getItem(position).viewType) {
             INACTIVE_VIEW_TYPE -> {
                 val inactiveViewHolder = holder as InactiveViewHolder
-                inactiveViewHolder.onBind(getItem(position))
-                inactiveViewHolder.itemView.setOnClickListener { onItemClicked(position) }
-                inactiveViewHolder.delete.setOnClickListener { onDeleteClicked(position) }
+                inactiveViewHolder.onBind(getItem(position), onItemClicked, onDeleteClicked)
             }
             ACTIVE_VIEW_TYPE -> {
                 val activeViewHolder = holder as ActiveViewHolder
-                activeViewHolder.onBind(getItem(position))
-                activeViewHolder.itemView.setOnClickListener { onItemClicked(position) }
+                activeViewHolder.onBind(getItem(position), onItemClicked)
             }
         }
     }
@@ -62,51 +59,47 @@ class TasksAdapter(
             super.onBindViewHolder(holder, position, payloads)
         } else {
             val inactiveViewHolder = holder as InactiveViewHolder
-            inactiveViewHolder.onBind(getItem(position), payloads)
+            inactiveViewHolder.onBind(payloads)
         }
     }
 
     class InactiveViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        val delete: ImageView = view.findViewById(R.id.delete)
-        private val checkBox = view.findViewById<CheckBox>(R.id.checkBox)
+        private val delete: ImageView = view.findViewById(R.id.delete)
+        private val checkBox = view.findViewById<CheckBox>(R.id.task_checked)
 
-        fun onBind(taskEntity: TaskUi) = with(itemView) {
-            //checkBox.post {
-                checkBox.isChecked = taskEntity.isChecked
-                //checkBox.isSelected = true
-            //}
+        fun onBind(
+            taskEntity: TaskUi,
+            onItemClicked: (id: String) -> Unit,
+            onDeleteClicked: (id: String) -> Unit
+        ) {
+            checkBox.isChecked = taskEntity.isChecked
+
+            itemView.setOnClickListener {
+                onItemClicked(taskEntity.id)
+            }
+
+            delete.setOnClickListener {
+                onDeleteClicked(taskEntity.id)
+            }
         }
 
-        fun onBind(taskEntity: TaskUi, payloads: List<Any>) = with(itemView) {
-            Log.d("WW", "PAYLOADSIZE = ${payloads.size}")
-            //checkBox.post {
-                val isChecked = payloads.last() as Boolean
-                checkBox.isChecked = isChecked
-                //checkBox.isSelected = true
-            //}
+        fun onBind(payloads: List<Any>) {
+            val isChecked = payloads.last() as Boolean
+            checkBox.isChecked = isChecked
         }
     }
 
     class ActiveViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        private val checkBox = view.findViewById<CheckBox>(R.id.checkBox)
+        private val checkBox = view.findViewById<CheckBox>(R.id.task_checked)
 
-        fun onBind(taskEntity: TaskUi) = with(itemView) {
-            //checkBox.post {
-                checkBox.isChecked = taskEntity.isChecked
-                //checkBox.isSelected = false
-           // }
-            //checkBox.jumpDrawablesToCurrentState()
-        }
+        fun onBind(taskEntity: TaskUi, onItemClicked: (id: String) -> Unit) {
+            checkBox.isChecked = taskEntity.isChecked
 
-        fun onBind(taskEntity: TaskUi, payloads: MutableList<Any>) = with(itemView) {
-           // checkBox.post {
-                val isChecked = payloads.last() as Boolean
-                checkBox.isChecked = isChecked
-                //checkBox.isSelected = false
-            //}
-            //checkBox.jumpDrawablesToCurrentState()
+            itemView.setOnClickListener {
+                onItemClicked(taskEntity.id)
+            }
         }
     }
 }
@@ -127,7 +120,6 @@ class DiffCallback : DiffUtil.ItemCallback<TaskUi>() {
     }
 
     override fun getChangePayload(oldItem: TaskUi, newItem: TaskUi): Any? {
-        Log.d("WW", "getChangePayload = ${oldItem.isChecked != newItem.isChecked}")
         if (oldItem.isChecked != newItem.isChecked) return newItem.isChecked
         return super.getChangePayload(oldItem, newItem)
     }

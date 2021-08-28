@@ -1,19 +1,26 @@
 package com.paint.simplerecyclerview.data
 
-import com.paint.simplerecyclerview.entity.DateUiEntity
+import com.paint.simplerecyclerview.data.local.DateDto
+import com.paint.simplerecyclerview.data.local.TaskDto
+import com.paint.simplerecyclerview.entity.DateUi
 import com.paint.simplerecyclerview.entity.TaskUi
+import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
 
-    fun addTaskByDateId(taskEntity: TaskUi, dateId: String, onSuccess: () -> Unit)
+    fun addTaskByDateId(task: TaskDto, dateId: String, onSuccess: (() -> Unit)?)
 
-    fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskUi>) -> Unit)
+    fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskDto>) -> Unit)
 
-    fun getDates(onSuccess: (List<DateUiEntity>)->Unit)
+    fun getDates(onSuccess: (List<DateDto>)->Unit)
 
-    fun addDate(dateUiEntity: DateUiEntity, onSuccess: ()-> Unit)
+    fun getDatesAsync(): Flow<List<DateDto>>
 
-    fun getDateById(id: String): DateUiEntity
+    fun addDate(date: DateDto, onSuccess: (() -> Unit)?)
 
-    fun deleteTaskByIdAndByDateId(taskId: String, dateId: String, onSuccess: () -> Unit)
+    fun getDateById(id: String): DateDto?
+
+    fun getDateByIdAsync(id: String): Flow<DateDto?>
+
+    fun deleteTaskById(taskId: String, onSuccess: (() -> Unit)?)
 }

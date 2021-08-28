@@ -1,6 +1,6 @@
 package com.paint.simplerecyclerview.entity
 
-data class DateUiEntity(
+data class DateUi(
     val id: String,
     val tasks: List<TaskUi>
 )
