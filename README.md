@@ -6,4 +6,4 @@ Example with ListAdapter
 Например: private lateinit var tasksAdapter: TasksAdapter, вместо private var tasksAdapter: TasksAdapter? = null
 2. Какая разница между list.get(position) и list[position]?
 3. Как следует называть методы у ViewModel? Если в MVP обычно принято onButtonClicked().
-4. 
+4. Как передавать текст из ViewModel во фрагмент для показа в Toast?
