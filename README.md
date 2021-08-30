@@ -1,6 +1,8 @@
 # SimpleRecyclerView
-Если список дат. Для каждой даты есть task. Все это хранится в базе(Realm), и отбражается с помощью ListAdapter. Проект на MVVM. CleanArchitecture.
+Есть список дат. Для каждой даты есть task. Все это хранится в базе(Realm), и отбражается с помощью ListAdapter. Проект на MVVM. CleanArchitecture.
 
+
+Вопросы:
 0. Общие рекомендации по коду, по неймингу и все такое?
 1. Могут ли быть проблемы, если использовать lateinit var вместо Nullable полей. 
 Например: private lateinit var tasksAdapter: TasksAdapter, вместо private var tasksAdapter: TasksAdapter? = null
