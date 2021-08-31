@@ -25,8 +25,7 @@ class DatesAdapter(
     }
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind() {
-        }
+        fun bind() {}
     }
 }
 
