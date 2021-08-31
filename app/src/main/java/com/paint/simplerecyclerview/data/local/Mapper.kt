@@ -1,29 +1,27 @@
 package com.paint.simplerecyclerview.data.local
 
-import com.paint.simplerecyclerview.entity.DateUi
-import com.paint.simplerecyclerview.entity.TaskUi
+import com.paint.simplerecyclerview.domain.entity.DateDomain
+import com.paint.simplerecyclerview.domain.entity.TaskDomain
 import io.realm.RealmList
 
 /**
  * to Ui entity
  */
 
-fun DateDto.toDateUi() = DateUi(
+fun DateDto.toDateDomain() = DateDomain(
     id = this.id,
-    tasks = this.tasks.map { taskDto -> taskDto.toTaskUi() }
+    tasks = this.tasks.map { taskDto -> taskDto.toTaskDomain() }
 )
 
-fun TaskDto.toTaskUi() = TaskUi(
-    id = this.id,
-    viewType = 0,
-    isChecked = true
+fun TaskDto.toTaskDomain() = TaskDomain(
+    id = this.id
 )
 
 /**
  * to date entity
  */
 
-fun DateUi.toDateDto(): DateDto {
+fun DateDomain.toDateDto(): DateDto {
 
     val list = RealmList<TaskDto>()
     this.tasks.forEach { task ->
@@ -36,6 +34,6 @@ fun DateUi.toDateDto(): DateDto {
     )
 }
 
-fun TaskUi.toTaskDto() = TaskDto(
+fun TaskDomain.toTaskDto() = TaskDto(
     id = this.id
 )

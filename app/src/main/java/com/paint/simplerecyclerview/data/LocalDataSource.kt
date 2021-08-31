@@ -2,8 +2,6 @@ package com.paint.simplerecyclerview.data
 
 import com.paint.simplerecyclerview.data.local.DateDto
 import com.paint.simplerecyclerview.data.local.TaskDto
-import com.paint.simplerecyclerview.entity.DateUi
-import com.paint.simplerecyclerview.entity.TaskUi
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {

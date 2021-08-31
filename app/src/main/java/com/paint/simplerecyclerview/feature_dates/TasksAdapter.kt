@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.paint.simplerecyclerview.R
-import com.paint.simplerecyclerview.entity.TaskUi
+import com.paint.simplerecyclerview.feature_dates.entity.TaskUi
 import java.lang.IllegalArgumentException
 
 const val INACTIVE_VIEW_TYPE = 0

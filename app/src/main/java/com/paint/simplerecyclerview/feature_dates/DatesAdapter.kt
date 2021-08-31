@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.paint.simplerecyclerview.R
-import com.paint.simplerecyclerview.entity.DateUi
+import com.paint.simplerecyclerview.feature_dates.entity.DateUi
 
 class DatesAdapter(
     private val onItemClicked: (position: Int) -> Unit
@@ -20,12 +20,12 @@ class DatesAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind()
         holder.itemView.setOnClickListener { onItemClicked(position) }
     }
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(date: DateUi) {
+        fun bind() {
         }
     }
 }

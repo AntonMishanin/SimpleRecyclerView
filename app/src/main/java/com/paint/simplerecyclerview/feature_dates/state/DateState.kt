@@ -1,6 +1,6 @@
 package com.paint.simplerecyclerview.feature_dates.state
 
-import com.paint.simplerecyclerview.entity.DateUi
+import com.paint.simplerecyclerview.feature_dates.entity.DateUi
 
 sealed class DateState{
     data class Content(val listOfDates: List<DateUi>): DateState()

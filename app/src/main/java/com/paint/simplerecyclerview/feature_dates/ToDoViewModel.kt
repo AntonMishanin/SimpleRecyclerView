@@ -4,9 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.paint.simplerecyclerview.data.DatesRepository
-import com.paint.simplerecyclerview.entity.DateUi
-import com.paint.simplerecyclerview.entity.TaskUi
+import com.paint.simplerecyclerview.domain.entity.DateDomain
+import com.paint.simplerecyclerview.domain.entity.TaskDomain
+import com.paint.simplerecyclerview.domain.usecase.*
+import com.paint.simplerecyclerview.feature_dates.entity.*
 import com.paint.simplerecyclerview.feature_dates.state.*
 import com.paint.simplerecyclerview.utils.SingleLiveEvent
 import com.paint.simplerecyclerview.utils.getUniqueId
@@ -16,7 +17,13 @@ import kotlinx.coroutines.launch
 const val DATE_NOT_SELECTED = ""
 
 class ToDoViewModel(
-    private val datesRepository: DatesRepository
+    private val addDateUseCase: AddDateUseCase,
+    private val addTaskByDateIdUseCase: AddTaskByDateIdUseCase,
+    private val deleteTaskByDateIdUseCase: DeleteTaskByIdUseCase,
+    private val getDateByIdUseCase: GetDateByIdUseCase,
+    private val getDatesUseCase: GetDatesUseCase,
+    private val getTasksByDateIdUseCase: GetTasksByDateIdUseCase,
+    private val observeChangesListOfDatesUseCase: ObserveChangesListOfDatesUseCase
 ) : ViewModel() {
 
     private val _dateState = MutableStateFlow<DateState>(DateState.Progress)
@@ -32,32 +39,38 @@ class ToDoViewModel(
 
     init {
         viewModelScope.launch {
-            datesRepository.observeChangesListOfDates()
+            observeChangesListOfDatesUseCase()
                 .map(::mapListOfDates)
                 .catch { emit(DateState.Error(it)) }
                 .collect { _dateState.value = it }
         }
     }
 
-    private fun mapListOfDates(dates: List<DateUi>): DateState {
-        handleChangedTaskState(dates)
+    private fun mapListOfDates(datesDomain: List<DateDomain>): DateState {
+        val datesUi = datesDomain.map { dateDomain -> dateDomain.toDateUi() }
 
-        return when (dates.isEmpty()) {
+        handleChangedTaskState(datesUi)
+
+        return when (datesDomain.isEmpty()) {
             true -> DateState.Empty
-            false -> DateState.Content(dates)
+            false -> DateState.Content(datesUi)
         }
     }
 
-    private fun handleChangedTaskState(dates: List<DateUi>){
+    private fun handleChangedTaskState(dates: List<DateUi>) {
         if (selectedDateId == DATE_NOT_SELECTED) {
             _taskState.value = TaskEmpty
         } else {
-            for (i in dates.indices) {
-                if (selectedDateId == dates[i].id) {
-                    _taskState.value = when (dates[i].tasks.isEmpty()) {
-                        true -> TaskEmpty
-                        false -> TaskContent(dates[i].tasks)
-                    }
+            updateTaskState(dates)
+        }
+    }
+
+    private fun updateTaskState(dates: List<DateUi>) {
+        for (i in dates.indices) {
+            if (selectedDateId == dates[i].id) {
+                _taskState.value = when (dates[i].tasks.isEmpty()) {
+                    true -> TaskEmpty
+                    false -> TaskContent(dates[i].tasks)
                 }
             }
         }
@@ -71,17 +84,19 @@ class ToDoViewModel(
             is DateState.Progress -> return
         }
 
-        datesRepository.getTasksByDateId(selectedDateId, onSuccess = { listOfTasks ->
-            _taskState.value = when (listOfTasks.isEmpty()) {
-                true -> TaskEmpty
-                false -> TaskContent(listOfTasks)
-            }
-        })
+        getTasksByDateIdUseCase(selectedDateId, ::mapListOfTasksToState)
+    }
+
+    private fun mapListOfTasksToState(listOfTasks: List<TaskDomain>) {
+        _taskState.value = when (listOfTasks.isEmpty()) {
+            true -> TaskEmpty
+            false -> TaskContent(listOfTasks.map { taskDomain -> taskDomain.toTaskUi() })
+        }
     }
 
     fun onAddDateClicked() {
         val date = DateUi(id = getUniqueId(), tasks = emptyList())
-        datesRepository.addDate(date)
+        addDateUseCase(date.toDateDomain())
     }
 
     fun onItemTaskClicked(id: String) {
@@ -92,7 +107,13 @@ class ToDoViewModel(
         }
 
         val position = getTaskPositionById(id) ?: return
-        container[position] = when (container[position].isChecked) {
+        container[position] = toggleTaskCheckedField(id, container[position])
+
+        _taskState.value = TaskContent(container)
+    }
+
+    private fun toggleTaskCheckedField(id: String, taskUi: TaskUi): TaskUi{
+       return when (taskUi.isChecked) {
             true -> TaskUi(
                 id = id,
                 viewType = INACTIVE_VIEW_TYPE,
@@ -104,11 +125,10 @@ class ToDoViewModel(
                 isChecked = true
             )
         }
-        _taskState.value = TaskContent(container)
     }
 
     fun onDeleteTaskClicked(id: String) {
-        datesRepository.deleteTaskById(id)
+        deleteTaskByDateIdUseCase(id)
     }
 
     fun onAddTaskClicked() {
@@ -121,7 +141,7 @@ class ToDoViewModel(
             viewType = INACTIVE_VIEW_TYPE,
             isChecked = true
         )
-        datesRepository.addTaskByDateId(task, selectedDateId)
+        addTaskByDateIdUseCase(task.toTaskDomain(), selectedDateId)
     }
 
     private fun getTaskPositionById(id: String): Int? {

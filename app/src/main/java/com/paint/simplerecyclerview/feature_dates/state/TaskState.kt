@@ -1,6 +1,6 @@
 package com.paint.simplerecyclerview.feature_dates.state
 
-import com.paint.simplerecyclerview.entity.TaskUi
+import com.paint.simplerecyclerview.feature_dates.entity.TaskUi
 
 sealed class TaskState
 
