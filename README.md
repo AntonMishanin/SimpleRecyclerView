@@ -1,6 +1,6 @@
 # SimpleRecyclerView
 
-!Актуальный код на вете develop
+!Актуальный код на ветке develop
 
 Есть список дат. Для каждой даты есть task. Все это хранится в базе(Realm), и отбражается с помощью ListAdapter. Проект на MVVM. CleanArchitecture.
 
