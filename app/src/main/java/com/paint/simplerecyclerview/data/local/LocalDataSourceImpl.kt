@@ -1,73 +1,66 @@
 package com.paint.simplerecyclerview.data.local
 
-import com.paint.simplerecyclerview.data.*
-import com.paint.simplerecyclerview.entity.DateUiEntity
-import com.paint.simplerecyclerview.data.local.dto.DateDto
-import com.paint.simplerecyclerview.entity.TaskUi
-import com.paint.simplerecyclerview.exception.NonExistentIdException
-import kotlin.collections.ArrayList
+import com.paint.simplerecyclerview.data.LocalDataSource
+import io.realm.Realm
+import io.realm.kotlin.toFlow
+import kotlinx.coroutines.flow.Flow
 
-class LocalDataSourceImpl {
+/**
+ * Для обновления объекта использовать realm.insertOrUpdate()
+ */
 
-    private val dates: MutableList<DateDto> = ArrayList()
+class LocalDataSourceImpl(
+    private val realm: Realm
+) : LocalDataSource {
 
-    fun addTaskByDateId(taskEntity: TaskUi, dateId: String) {
-        for (i in dates.indices) {
-            if (dates[i].id == dateId) {
-                val taskDto = taskEntity.toTaskDto()
-                val list = dates[i].tasks.toMutableList()
-                list.add(taskDto)
-                dates[i] = dates[i].copy(tasks = list.toList())
-            }
-        }
+    override fun addTaskByDateId(task: TaskDto, dateId: String, onSuccess: (() -> Unit)?) {
+        realm.executeTransactionAsync({ realm ->
+            realm.insert(task)
+
+            val date = realm.where(DateDto::class.java).equalTo("id", dateId).findFirst()
+            date?.tasks?.add(task)
+        }, {
+            onSuccess?.invoke()
+        }, { throwable ->
+            throwable.printStackTrace()
+        })
     }
 
-    fun removeById(id: String) {
-
+    override fun getTasksByDateId(id: String, onSuccess: (listOfTasks: List<TaskDto>) -> Unit) {
+        val date = realm.where(DateDto::class.java).equalTo("id", id).findFirst()
+        onSuccess(date?.tasks ?: emptyList())
     }
 
-    fun getTasksByDateId(id: String): List<TaskUi> {
-        var date: DateDto? = null
-        dates.forEach { dateDto ->
-            if (dateDto.id == id) {
-                date = dateDto
-            }
-        }
-        return date?.tasks?.map { taskDto -> taskDto.toTaskUi() }
-            ?: throw NonExistentIdException("Non-existent id = $id")
+    override fun getDates(onSuccess: (List<DateDto>) -> Unit) {
+        onSuccess(realm.where(DateDto::class.java).findAll())
     }
 
-    fun getDates(): List<DateUiEntity> = dates.map { dateDto -> dateDto.toDateUi() }
+    override fun getDatesAsync(): Flow<List<DateDto>> = realm.where(DateDto::class.java).findAll().toFlow()
 
-    fun addDate(dateUiEntity: DateUiEntity) {
-        dates.add(dateUiEntity.toDateDto())
+    override fun addDate(date: DateDto, onSuccess: (() -> Unit)?) {
+        realm.executeTransactionAsync({ realm ->
+            realm.insert(date)
+        }, {
+            onSuccess?.invoke()
+        }, { throwable ->
+            throwable.printStackTrace()
+        })
     }
 
-    fun getDateById(id: String): DateUiEntity {
-        var date: DateDto? = null
-        dates.forEach { dateDto ->
-            if (dateDto.id == id) {
-                date = dateDto
-            }
-        }
-        return date?.toDateUi() ?: throw NonExistentIdException("Non-existent id = $id")
-    }
+    override fun getDateById(id: String): DateDto? =
+        realm.where(DateDto::class.java).equalTo("id", id).findFirst()
 
-    fun deleteTaskByIdAndByDateId(taskId: String, dateId: String) {
-        var datePosition = 0
-        for (i in dates.indices) {
-            if (dates[i].id == dateId) {
-                datePosition = i
-            }
-        }
+    override fun getDateByIdAsync(id: String): Flow<DateDto?> =
+        realm.where(DateDto::class.java).equalTo("id", id).findFirstAsync().toFlow()
 
-        for (i in dates[datePosition].tasks.indices) {
-            if (dates[datePosition].tasks[i].id == taskId) {
-                val mutableList = dates[datePosition].tasks.toMutableList()
-                mutableList.removeAt(i)
-                dates[datePosition] = dates[datePosition].copy(tasks = mutableList.toList())
-                return
-            }
-        }
+    override fun deleteTaskById(taskId: String, onSuccess: (() -> Unit)?) {
+        realm.executeTransactionAsync({ realm ->
+            val task = realm.where(TaskDto::class.java).equalTo("id", taskId).findFirst()
+            task?.deleteFromRealm()
+        }, {
+            onSuccess?.invoke()
+        }, { throwable ->
+            throwable.printStackTrace()
+        })
     }
 }

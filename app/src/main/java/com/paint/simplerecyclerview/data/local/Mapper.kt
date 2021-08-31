@@ -1,26 +1,39 @@
-package com.paint.simplerecyclerview.data
+package com.paint.simplerecyclerview.data.local
 
-import com.paint.simplerecyclerview.entity.DateUiEntity
-import com.paint.simplerecyclerview.data.local.dto.DateDto
-import com.paint.simplerecyclerview.data.local.dto.TaskDto
-import com.paint.simplerecyclerview.entity.TaskUi
+import com.paint.simplerecyclerview.domain.entity.DateDomain
+import com.paint.simplerecyclerview.domain.entity.TaskDomain
+import io.realm.RealmList
 
-fun DateDto.toDateUi() = DateUiEntity(
+/**
+ * to Ui entity
+ */
+
+fun DateDto.toDateDomain() = DateDomain(
     id = this.id,
-    tasks = this.tasks.map { task -> task.toTaskUi() }
+    tasks = this.tasks.map { taskDto -> taskDto.toTaskDomain() }
 )
 
-fun DateUiEntity.toDateDto() = DateDto(
-    id = this.id,
-    tasks = this.tasks.map { task -> task.toTaskDto() }
+fun TaskDto.toTaskDomain() = TaskDomain(
+    id = this.id
 )
 
-fun TaskDto.toTaskUi() = TaskUi(
-    id = this.id,
-    viewType = 0,
-    isChecked = true
-)
+/**
+ * to date entity
+ */
 
-fun TaskUi.toTaskDto() = TaskDto(
+fun DateDomain.toDateDto(): DateDto {
+
+    val list = RealmList<TaskDto>()
+    this.tasks.forEach { task ->
+        list.add(task.toTaskDto())
+    }
+
+    return DateDto(
+        id = this.id,
+        tasks = list
+    )
+}
+
+fun TaskDomain.toTaskDto() = TaskDto(
     id = this.id
 )
